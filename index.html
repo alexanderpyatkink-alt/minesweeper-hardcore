@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Minesweeper Hardcore</title>
+    <title>Hardcore Minesweeper</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- Top right: language + volume -->
+<!-- Top-right: language + music volume -->
 <div id="topRight">
-    <button id="langBtn" class="mini-btn" onclick="toggleLanguage()">RU</button>
+    <button id="langBtn" class="mini-btn" type="button" onclick="toggleLanguage()">RU</button>
+
     <div id="musicBox">
         <span class="musicLabel">🔊</span>
         <input id="musicVolume" type="range" min="0" max="100" value="30" />
@@ -22,7 +23,9 @@
 <div id="controls">
     <button id="btnHard" onclick="playClickStart(); startGame('hard')">🔴 HARD</button>
     <button id="btnInsane" onclick="playClickStart(); startGame('insane')">☠️ INSANE</button>
+
     <button id="giveUpBtn" onclick="giveUpClick()">I GIVE UP</button>
+
     <button id="musicToggleBtn" onclick="toggleMusic()">🎵</button>
 </div>
 
@@ -36,12 +39,14 @@
 
 <div id="board"></div>
 
-<audio id="clickSound" src="audio/click.mp3"></audio>
-<audio id="boomSound" src="audio/boom.mp3"></audio>
-<audio id="winSound" src="audio/win.mp3"></audio>
-<audio id="bgMusic" src="audio/bg.mp3" loop></audio>
+<!-- 🔊 LOCAL AUDIO FILES -->
+<audio id="clickSound" src="audio/click.mp3" preload="auto"></audio>
+<audio id="boomSound"  src="audio/boom.mp3"  preload="auto"></audio>
+<audio id="winSound"   src="audio/win.mp3"   preload="auto"></audio>
+
+<!-- 🎵 BACKGROUND MUSIC -->
+<audio id="bgMusic" src="audio/bg.mp3" loop preload="auto"></audio>
 
 <script src="script.js"></script>
 </body>
 </html>
-
