@@ -3,26 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>Hardcore Minesweeper</title>
-
-    <!-- ✅ PWA Manifest -->
-    <link rel="manifest" href="manifest.webmanifest">
-
-    <!-- ✅ Theme color for Android -->
-    <meta name="theme-color" content="#22083f">
-
-    <!-- ✅ Optional (nice for iOS homescreen) -->
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-
+    <title>Minesweeper Hardcore</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- Top-right: language + music volume -->
+<!-- Top right: language + volume -->
 <div id="topRight">
-    <button id="langBtn" class="mini-btn" type="button" onclick="toggleLanguage()">RU</button>
-
+    <button id="langBtn" class="mini-btn" onclick="toggleLanguage()">RU</button>
     <div id="musicBox">
         <span class="musicLabel">🔊</span>
         <input id="musicVolume" type="range" min="0" max="100" value="30" />
@@ -34,11 +22,7 @@
 <div id="controls">
     <button id="btnHard" onclick="playClickStart(); startGame('hard')">🔴 HARD</button>
     <button id="btnInsane" onclick="playClickStart(); startGame('insane')">☠️ INSANE</button>
-
-    <!-- Give up chain -->
     <button id="giveUpBtn" onclick="giveUpClick()">I GIVE UP</button>
-
-    <!-- Music toggle -->
     <button id="musicToggleBtn" onclick="toggleMusic()">🎵</button>
 </div>
 
@@ -52,13 +36,10 @@
 
 <div id="board"></div>
 
-<!-- 🔊 LOCAL AUDIO FILES -->
-<audio id="clickSound" src="audio/click.mp3" preload="auto"></audio>
-<audio id="boomSound"  src="audio/boom.mp3"  preload="auto"></audio>
-<audio id="winSound"   src="audio/win.mp3"   preload="auto"></audio>
-
-<!-- 🎵 BACKGROUND MUSIC -->
-<audio id="bgMusic" src="audio/bg.mp3" loop preload="auto"></audio>
+<audio id="clickSound" src="audio/click.mp3"></audio>
+<audio id="boomSound" src="audio/boom.mp3"></audio>
+<audio id="winSound" src="audio/win.mp3"></audio>
+<audio id="bgMusic" src="audio/bg.mp3" loop></audio>
 
 <script src="script.js"></script>
 </body>
