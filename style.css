@@ -1,93 +1,243 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #050821, #22083f);
-  color: #fff;
-  text-align: center;
+* { box-sizing: border-box; }
+
+:root{
+  --cell-size: 32px;
 }
 
-body.easy {
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #050821, #22083f);
+  color: #eaeaff;
+  transition: background 0.25s ease;
+}
+
+/* ✅ EASY: только фон розовый, кнопки остаются “как на сложном” */
+body.pink-mode {
   background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
 
 h1 {
-  margin: 20px 0;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-size: 32px;
 }
+
+#controls { margin-bottom: 10px; }
 
 button {
   padding: 12px 18px;
   margin: 6px;
-  font-size: 16px;
+  font-size: 18px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background: #7a1cff;
-  color: white;
+  background: #7a1cff; /* “как в сложном” */
+  color: #ffffff;
+  transition: transform 0.1s ease, background 0.2s ease;
 }
 
-button:hover {
-  background: #9a4dff;
+button:hover { background: #9a4dff; }
+button:active { transform: scale(0.95); }
+
+#giveUpBtn { background: #ff2a6d; }
+#giveUpBtn:hover { background: #ff5b8f; }
+
+/* row for music + restart */
+.miniControlsRow{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
 }
 
-#giveUpBtn {
-  background: #ff2a6d;
+#musicToggleBtn { font-size: 16px; padding: 10px 12px; }
+
+.iconBtn{
+  padding: 10px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-.mini button {
-  background: #444;
+/* ✅ restart всегда зелёный (на всех уровнях) */
+#restartBtn{
+  background: #12c97a;
+  color: #071a12;
+  font-weight: 900;
 }
+#restartBtn:hover{ background: #27e08f; }
 
-.restart {
-  background: #12c97a !important;
-}
-
-#topRight {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-#musicBox {
-  background: rgba(0,0,0,0.3);
-  padding: 6px;
-  border-radius: 8px;
+.restartIcon{
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 #info {
-  margin: 10px;
+  font-size: 18px;
+  margin: 10px 0;
+}
+#info span {
+  display: inline-block;
+  min-width: 44px;
 }
 
+/* ✅ FIX: сетка через CSS-переменную --cols */
 #board {
-  display: grid;
-  margin: 10px auto;
+  --cols: 12; /* JS выставит нужное */
+  display: inline-grid;
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
+  gap: 4px;                 /* как “3 версии назад” */
   background: #0d1033;
-  padding: 8px;
-  border-radius: 10px;
-  gap: 4px;
+  padding: 10px;
+  border-radius: 14px;
+  margin: 12px auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
 
+body.pink-mode #board {
+  background: rgba(13, 16, 51, 0.45);
+}
+
+/* Cells */
 .cell {
-  width: 30px;
-  height: 30px;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  line-height: var(--cell-size);
+
   background: #2a2f6d;
-  border-radius: 4px;
-  line-height: 30px;
+  border-radius: 6px;
+
   font-weight: bold;
+  font-size: 16px;
+
   cursor: pointer;
+  user-select: none;
+
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.cell.open {
-  background: #3e44b8;
+body.pink-mode .cell { background: rgba(42, 47, 109, 0.75); }
+
+.cell.open { background: #3e44b8; cursor: default; }
+.cell.flag { background: #6a3cff; }
+
+body.pink-mode .cell.open { background: rgba(62, 68, 184, 0.78); }
+body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
+
+.cell.explode { animation: explode 0.6s ease-out forwards; }
+@keyframes explode {
+  0%   { transform: scale(1);   background: #ffffff; }
+  50%  { transform: scale(1.6); background: #ff004c; }
+  100% { transform: scale(1);   background: #8a0030; }
 }
 
-.cell.flag {
-  background: #6a3cff;
+.shake { animation: shake 0.3s; }
+@keyframes shake {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(4px, -4px); }
+  50%  { transform: translate(-4px, 4px); }
+  75%  { transform: translate(4px, 4px); }
+  100% { transform: translate(0, 0); }
 }
 
-.cell.explode {
-  background: red;
+/* Top-right language + volume */
+#topRight {
+  position: fixed;
+  top: 12px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 999;
+}
+
+.mini-btn {
+  padding: 8px 10px;
+  margin: 0;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+#musicBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 16, 51, 0.6);
+  border: 1px solid rgba(234, 234, 255, 0.15);
+  padding: 6px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+}
+
+.musicLabel { font-size: 14px; opacity: 0.85; }
+#musicVolume { width: 120px; }
+
+/* 📱 MOBILE */
+@media screen and (max-width: 1080px) and (orientation: portrait) {
+  :root{
+    --cell-size: clamp(20px, 2.35vw, 28px);
+  }
+
+  #topRight {
+    top: 10px;
+    right: 12px;
+    gap: 8px;
+    transform: scale(0.95);
+  }
+
+  #musicBox { padding: 4px 6px; }
+  #musicVolume { width: 80px; }
+
+  h1 {
+    font-size: 24px;
+    margin-top: 54px;
+    margin-bottom: 8px;
+  }
+
+  #controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  #controls button {
+    width: 92%;
+    max-width: 360px;
+    font-size: 15px;
+    padding: 10px 14px;
+  }
+
+  #musicToggleBtn, #restartBtn{
+    width: auto;
+    max-width: none;
+    padding: 9px 12px;
+    margin: 0;
+  }
+
+  #info {
+    font-size: 14px;
+    line-height: 1.35;
+    margin: 6px 0;
+  }
+  #info span { min-width: 34px; }
+
+  #board {
+    max-width: 96vw;
+    gap: 3px;  /* как раньше на телефоне */
+    padding: 8px;
+  }
+
+  .cell {
+    font-size: 14px;
+    border-radius: 5px;
+  }
 }
 
 
