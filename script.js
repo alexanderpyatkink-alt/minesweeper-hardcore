@@ -90,7 +90,7 @@ let giveUpStep = 0;
 let pressTimer = null;
 let flagCount = 0;
 
-/* NEW: EASY (pink) */
+/* BASE LEVELS (used as reference; may be scaled down on narrow screens) */
 const levels = {
     easy:   { rows: 12, cols: 12, mines: 15,  limit: 180 }, // 3:00
     hard:   { rows: 20, cols: 20, mines: 120, limit: 60  }, // 1:00
@@ -154,7 +154,6 @@ function toggleLanguage() {
 ================================ */
 function playClickStart() {
     safePlay(document.getElementById("clickSound"));
-
     const music = document.getElementById("bgMusic");
     applyMusicVolumeFromSlider();
     safePlay(music);
@@ -206,14 +205,9 @@ function giveUpClick() {
     safePlay(document.getElementById("clickSound"));
     giveUpStep++;
 
-    if (giveUpStep === 1) {
-        btn.textContent = i18n[lang].giveUp1;
-        return;
-    }
-    if (giveUpStep === 2) {
-        btn.textContent = i18n[lang].giveUp2;
-        return;
-    }
+    if (giveUpStep === 1) { btn.textContent = i18n[lang].giveUp1; return; }
+    if (giveUpStep === 2) { btn.textContent = i18n[lang].giveUp2; return; }
+
     if (giveUpStep >= 3) {
         btn.textContent = i18n[lang].giveUp3;
         playClickStart();
@@ -223,11 +217,84 @@ function giveUpClick() {
 }
 
 /* ==============================
+   📐 RESPONSIVE DIFFICULTY (auto fit for narrow screens)
+================================ */
+function getCellSizePx() {
+    const v = getComputedStyle(document.documentElement)
+        .getPropertyValue("--cell-size")
+        .trim() || "32px";
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : 32;
+}
+
+function isMobilePortrait1080() {
+    return window.matchMedia("(max-width: 1080px) and (orientation: portrait)").matches;
+}
+
+function computeResponsiveConfig(levelKey) {
+    const base = levels[levelKey];
+    const cfg = { ...base };
+
+    // available board width (CSS uses max-width: 96vw on mobile)
+    const boardMaxW = window.innerWidth * (isMobilePortrait1080() ? 0.96 : 1.0);
+
+    const cell = getCellSizePx();
+    const gap = isMobilePortrait1080() ? 3 : 4;
+    const padding = isMobilePortrait1080() ? 16 : 20; // board padding*2 approx (8*2 / 10*2)
+
+    const requiredW = base.cols * cell + (base.cols - 1) * gap + padding;
+
+    // fits -> no change
+    if (requiredW <= boardMaxW) return cfg;
+
+    // compute max columns possible
+    const maxCols = Math.max(8, Math.floor((boardMaxW - padding + gap) / (cell + gap)));
+
+    // scale rows/cols proportionally to keep square-ish
+    const ratio = maxCols / base.cols;
+    const newCols = Math.max(8, Math.min(base.cols, Math.floor(base.cols * ratio)));
+    const newRows = Math.max(8, Math.min(base.rows, Math.floor(base.rows * ratio)));
+
+    // preserve mine density
+    const baseCells = base.rows * base.cols;
+    const newCells = newRows * newCols;
+    let newMines = Math.round(base.mines * (newCells / baseCells));
+
+    // keep insane brutal even when scaled down
+    if (levelKey === "insane") {
+        const minDensity = 0.32; // 32% mines
+        newMines = Math.max(newMines, Math.floor(newCells * minDensity));
+    }
+
+    // safety limits
+    newMines = Math.min(newMines, newCells - 9);
+
+    cfg.rows = newRows;
+    cfg.cols = newCols;
+    cfg.mines = newMines;
+
+    return cfg;
+}
+
+function updateGridColumnsOnly() {
+    const boardDiv = document.getElementById("board");
+    if (!boardDiv || !cols) return;
+
+    const cellSize = getComputedStyle(document.documentElement)
+        .getPropertyValue("--cell-size")
+        .trim() || "32px";
+
+    boardDiv.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+}
+
+/* ==============================
    ▶️ START GAME
 ================================ */
 function startGame(level) {
     currentLevel = level;
-    const cfg = levels[level];
+
+    // IMPORTANT: use responsive config (auto shrink board if needed)
+    const cfg = computeResponsiveConfig(level);
 
     rows = cfg.rows;
     cols = cfg.cols;
@@ -296,11 +363,7 @@ function calculateNumbers() {
             for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
                     const nr = r + dr, nc = c + dc;
-                    if (
-                        nr >= 0 && nr < rows &&
-                        nc >= 0 && nc < cols &&
-                        board[nr][nc] === "M"
-                    ) count++;
+                    if (nr>=0 && nr<rows && nc>=0 && nc<cols && board[nr][nc] === "M") count++;
                 }
             }
             board[r][c] = count;
@@ -309,12 +372,17 @@ function calculateNumbers() {
 }
 
 /* ==============================
-   🧩 RENDER + PC flags + Mobile long press
+   🧩 RENDER (autocell size via CSS var)
 ================================ */
 function drawBoard() {
     const boardDiv = document.getElementById("board");
     boardDiv.innerHTML = "";
-    boardDiv.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
+
+    const cellSize = getComputedStyle(document.documentElement)
+        .getPropertyValue("--cell-size")
+        .trim() || "32px";
+
+    boardDiv.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -330,10 +398,7 @@ function drawBoard() {
                 }
             });
 
-            cell.addEventListener("click", () => {
-                openCell(r, c);
-            });
-
+            cell.addEventListener("click", () => openCell(r, c));
             cell.addEventListener("contextmenu", (e) => e.preventDefault());
 
             // Mobile: long press = flag, tap = open
@@ -356,6 +421,9 @@ function drawBoard() {
             boardDiv.appendChild(cell);
         }
     }
+
+    // keep grid consistent if CSS cell size changed
+    updateGridColumnsOnly();
 }
 
 /* ==============================
@@ -367,8 +435,6 @@ function openCell(r, c) {
     const cell = document.getElementById(`cell-${r}-${c}`);
     revealed[r][c] = true;
     cell.classList.add("open");
-
-    updateFlagUI();
 
     safePlay(document.getElementById("clickSound"));
 
@@ -393,16 +459,15 @@ function openCell(r, c) {
     if (board[r][c] > 0) {
         cell.textContent = board[r][c];
     } else {
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
+        for (let dr=-1; dr<=1; dr++) {
+            for (let dc=-1; dc<=1; dc++) {
                 const nr = r + dr, nc = c + dc;
-                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-                    openCell(nr, nc);
-                }
+                if (nr>=0 && nr<rows && nc>=0 && nc<cols) openCell(nr, nc);
             }
         }
     }
 
+    updateFlagUI();
     checkWin();
 }
 
@@ -421,11 +486,7 @@ function toggleFlag(r, c, cell) {
 ================================ */
 function checkWin() {
     let opened = 0;
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            if (revealed[r][c]) opened++;
-        }
-    }
+    for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) if (revealed[r][c]) opened++;
     if (opened === rows * cols - minesCount) endGame(true, false);
 }
 
@@ -438,14 +499,12 @@ function endGame(win, timeUp) {
     if (win) {
         safePlay(document.getElementById("winSound"));
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-
         saveRecord();
         setTimeout(() => alert(t.win), 200);
     } else {
         const msg = timeUp
             ? t.timeUp
             : losePhrases[lang][Math.floor(Math.random() * losePhrases[lang].length)];
-
         setTimeout(() => alert(msg), 200);
     }
 }
@@ -462,8 +521,7 @@ function saveRecord() {
 
 function loadRecord() {
     const key = "record_" + currentLevel;
-    document.getElementById("record").textContent =
-        localStorage.getItem(key) || "0";
+    document.getElementById("record").textContent = localStorage.getItem(key) || "0";
 }
 
 /* ==============================
@@ -480,4 +538,10 @@ function loadRecord() {
         slider.addEventListener("input", applyMusicVolumeFromSlider);
     }
     applyMusicVolumeFromSlider();
+
+    // Recalculate grid columns when screen rotates/resizes (no restart)
+    window.addEventListener("resize", () => {
+        updateGridColumnsOnly();
+    });
 })();
+
