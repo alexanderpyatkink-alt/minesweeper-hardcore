@@ -1,6 +1,6 @@
 * { box-sizing: border-box; }
 
-:root {
+:root{
     --cell-size: 32px;
 }
 
@@ -14,14 +14,18 @@ body {
     transition: background 0.25s ease;
 }
 
+/* Pink mode for EASY */
 body.pink-mode {
     background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
 
 h1 {
-    margin: 18px 0 10px;
+    margin-top: 18px;
+    margin-bottom: 10px;
     font-size: 32px;
 }
+
+#controls { margin-bottom: 10px; }
 
 button {
     padding: 12px 18px;
@@ -31,20 +35,47 @@ button {
     border-radius: 10px;
     cursor: pointer;
     background: #7a1cff;
-    color: #fff;
+    color: #ffffff;
+    transition: transform 0.1s ease, background 0.2s ease;
 }
 
 button:hover { background: #9a4dff; }
+button:active { transform: scale(0.95); }
 
+#musicToggleBtn {
+    font-size: 16px;
+    padding: 10px 12px;
+}
+
+/* Give up button */
 #giveUpBtn { background: #ff2a6d; }
 #giveUpBtn:hover { background: #ff5b8f; }
+
+/* EASY mode: buttons become pink-ish */
+body.pink-mode #controls button {
+    background: #ff2a6d;
+}
+body.pink-mode #controls button:hover {
+    background: #ff5b8f;
+}
+/* keep music button darker so it stands out */
+body.pink-mode #musicToggleBtn {
+    background: rgba(13,16,51,0.65);
+}
+body.pink-mode #musicToggleBtn:hover {
+    background: rgba(13,16,51,0.85);
+}
 
 #info {
     font-size: 18px;
     margin: 10px 0;
 }
-#info span { min-width: 42px; display: inline-block; }
+#info span {
+    display: inline-block;
+    min-width: 44px;
+}
 
+/* Board */
 #board {
     display: inline-grid;
     gap: 4px;
@@ -54,77 +85,128 @@ button:hover { background: #9a4dff; }
     margin: 12px auto;
 }
 
+body.pink-mode #board {
+    background: rgba(13, 16, 51, 0.45);
+}
+
+/* Cells */
 .cell {
     width: var(--cell-size);
     height: var(--cell-size);
     line-height: var(--cell-size);
+
     background: #2a2f6d;
     border-radius: 6px;
+
     font-weight: bold;
     font-size: 16px;
+
     cursor: pointer;
     user-select: none;
+
+    transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.cell.open { background: #3e44b8; }
+body.pink-mode .cell {
+    background: rgba(42, 47, 109, 0.75);
+}
+
+.cell.open { background: #3e44b8; cursor: default; }
 .cell.flag { background: #6a3cff; }
-.cell.explode { animation: explode 0.6s ease; }
+
+body.pink-mode .cell.open { background: rgba(62, 68, 184, 0.78); }
+body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
+
+/* Explosion animation */
+.cell.explode { animation: explode 0.6s ease-out forwards; }
 
 @keyframes explode {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.5); background: red; }
-    100% { transform: scale(1); }
+    0%   { transform: scale(1);   background: #ffffff; }
+    50%  { transform: scale(1.6); background: #ff004c; }
+    100% { transform: scale(1);   background: #8a0030; }
 }
 
-/* top right */
+/* Board shake */
+.shake { animation: shake 0.3s; }
+@keyframes shake {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(4px, -4px); }
+    50%  { transform: translate(-4px, 4px); }
+    75%  { transform: translate(4px, 4px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* ===== Top-right language + volume ===== */
 #topRight {
     position: fixed;
     top: 12px;
-    right: 28px;
+    right: 28px; /* a bit left from edge */
     display: flex;
+    align-items: center;
     gap: 10px;
     z-index: 999;
 }
 
-.mini-btn { font-size: 14px; padding: 8px 10px; }
+.mini-btn {
+    padding: 8px 10px;
+    margin: 0;
+    font-size: 14px;
+    border-radius: 10px;
+}
 
 #musicBox {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
-    background: rgba(0,0,0,0.4);
-    border-radius: 10px;
+    gap: 8px;
+    background: rgba(13, 16, 51, 0.6);
+    border: 1px solid rgba(234, 234, 255, 0.15);
+    padding: 6px 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
 }
 
-.musicLabel { font-size: 14px; }
-
-/* EASY mode buttons */
-body.pink-mode #controls button {
-    background: #ff2a6d;
-}
-body.pink-mode #controls button:hover {
-    background: #ff5b8f;
+.musicLabel {
+    font-size: 14px;
+    opacity: 0.85;
 }
 
-/* 📱 MOBILE */
+#musicVolume { width: 120px; }
+
+/* ==============================
+   📱 MOBILE (target ~1080x2340 portrait)
+================================ */
 @media screen and (max-width: 1080px) and (orientation: portrait) {
-
-    :root {
+    /* auto cell size */
+    :root{
         --cell-size: clamp(20px, 2.35vw, 28px);
     }
 
-    h1 {
-        font-size: 24px;
-        margin-top: 54px;
+    #topRight {
+        top: 10px;
+        right: 12px;
+        gap: 8px;
+        transform: scale(0.95);
     }
 
+    #musicBox { padding: 4px 6px; }
+    #musicVolume { width: 80px; }
+
+    h1 {
+        font-size: 24px;
+        margin-top: 54px; /* room for topRight */
+        margin-bottom: 8px;
+    }
+
+    /* stack controls so nothing overlaps */
     #controls {
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
     }
 
+    /* keep labels, just smaller */
     #controls button {
         width: 92%;
         max-width: 360px;
@@ -132,14 +214,28 @@ body.pink-mode #controls button:hover {
         padding: 10px 14px;
     }
 
+    #musicToggleBtn {
+        font-size: 14px;
+        padding: 9px 12px;
+    }
+
     #info {
         font-size: 14px;
+        line-height: 1.35;
+        margin: 6px 0;
     }
+    #info span { min-width: 34px; }
 
     #board {
         max-width: 96vw;
         gap: 3px;
         padding: 8px;
     }
+
+    .cell {
+        font-size: 14px;
+        border-radius: 5px;
+    }
 }
+
 
