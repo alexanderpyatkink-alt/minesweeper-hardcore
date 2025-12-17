@@ -14,7 +14,6 @@ body {
     transition: background 0.25s ease;
 }
 
-/* Pink mode for EASY */
 body.pink-mode {
     background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
@@ -42,12 +41,6 @@ button {
 button:hover { background: #9a4dff; }
 button:active { transform: scale(0.95); }
 
-#musicToggleBtn {
-    font-size: 16px;
-    padding: 10px 12px;
-}
-
-/* Give up button */
 #giveUpBtn { background: #ff2a6d; }
 #giveUpBtn:hover { background: #ff5b8f; }
 
@@ -58,7 +51,6 @@ body.pink-mode #controls button {
 body.pink-mode #controls button:hover {
     background: #ff5b8f;
 }
-/* keep music button darker so it stands out */
 body.pink-mode #musicToggleBtn {
     background: rgba(13,16,51,0.65);
 }
@@ -66,6 +58,44 @@ body.pink-mode #musicToggleBtn:hover {
     background: rgba(13,16,51,0.85);
 }
 
+/* row for music + restart */
+.miniControlsRow{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+#musicToggleBtn {
+    font-size: 16px;
+    padding: 10px 12px;
+}
+
+/* Icon button base */
+.iconBtn{
+    padding: 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* ✅ NEW: green restart button + SVG */
+#restartBtn{
+    background: #12c97a;
+    color: #071a12; /* affects SVG stroke */
+    font-weight: 900;
+}
+#restartBtn:hover{
+    background: #27e08f;
+}
+.restartIcon{
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+/* Info */
 #info {
     font-size: 18px;
     margin: 10px 0;
@@ -75,10 +105,26 @@ body.pink-mode #musicToggleBtn:hover {
     min-width: 44px;
 }
 
+/* hint badge */
+.hint{
+    min-height: 18px;
+    margin: 2px auto 6px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(13, 16, 51, 0.55);
+    border: 1px solid rgba(234, 234, 255, 0.15);
+    backdrop-filter: blur(6px);
+}
+.hint.show{ opacity: 0.95; }
+
 /* Board */
 #board {
     display: inline-grid;
-    gap: 4px;
+    gap: 2px;                 /* ПК — минимально */
     background: #0d1033;
     padding: 10px;
     border-radius: 14px;
@@ -136,11 +182,11 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
     100% { transform: translate(0, 0); }
 }
 
-/* ===== Top-right language + volume ===== */
+/* Top-right language + volume */
 #topRight {
     position: fixed;
     top: 12px;
-    right: 28px; /* a bit left from edge */
+    right: 28px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -172,11 +218,8 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 
 #musicVolume { width: 120px; }
 
-/* ==============================
-   📱 MOBILE (target ~1080x2340 portrait)
-================================ */
+/* 📱 MOBILE (1080x2340 portrait) */
 @media screen and (max-width: 1080px) and (orientation: portrait) {
-    /* auto cell size */
     :root{
         --cell-size: clamp(20px, 2.35vw, 28px);
     }
@@ -193,11 +236,10 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 
     h1 {
         font-size: 24px;
-        margin-top: 54px; /* room for topRight */
+        margin-top: 54px;
         margin-bottom: 8px;
     }
 
-    /* stack controls so nothing overlaps */
     #controls {
         display: flex;
         flex-direction: column;
@@ -206,7 +248,6 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
         margin-bottom: 8px;
     }
 
-    /* keep labels, just smaller */
     #controls button {
         width: 92%;
         max-width: 360px;
@@ -214,10 +255,14 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
         padding: 10px 14px;
     }
 
-    #musicToggleBtn {
-        font-size: 14px;
+    /* mini buttons compact */
+    #musicToggleBtn, #restartBtn{
+        width: auto;
+        max-width: none;
         padding: 9px 12px;
+        margin: 0;
     }
+    .restartIcon{ width: 20px; height: 20px; }
 
     #info {
         font-size: 14px;
@@ -228,7 +273,7 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 
     #board {
         max-width: 96vw;
-        gap: 3px;
+        gap: 1px;        /* минимальный зазор на телефоне */
         padding: 8px;
     }
 
