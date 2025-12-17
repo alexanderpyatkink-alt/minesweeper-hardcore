@@ -11,7 +11,8 @@ const i18n = {
         giveUp2: "Did you think it through?",
         giveUp3: "WEAK.",
         win: "🎉 IMPOSSIBLE… but you won.",
-        timeUp: "⏳ Time's up. Too slow."
+        timeUp: "⏳ Time's up. Too slow.",
+        adapted: "📱 Field adapted to your screen"
     },
     ru: {
         title: "💣 Сапёр: Хардкор",
@@ -22,7 +23,8 @@ const i18n = {
         giveUp2: "Ты хорошо подумал?",
         giveUp3: "СЛАБАК.",
         win: "🎉 НЕВОЗМОЖНО… но ты выиграл.",
-        timeUp: "⏳ Время вышло. Слишком медленно."
+        timeUp: "⏳ Время вышло. Слишком медленно.",
+        adapted: "📱 Поле адаптировано под экран"
     }
 };
 
@@ -89,12 +91,13 @@ let currentLevel = "hard";
 let giveUpStep = 0;
 let pressTimer = null;
 let flagCount = 0;
+let lastWasAdapted = false;
 
-/* BASE LEVELS (used as reference; may be scaled down on narrow screens) */
+/* BASE LEVELS */
 const levels = {
-    easy:   { rows: 12, cols: 12, mines: 15,  limit: 180 }, // 3:00
-    hard:   { rows: 20, cols: 20, mines: 120, limit: 60  }, // 1:00
-    insane: { rows: 24, cols: 24, mines: 220, limit: 120 }  // 2:00
+    easy:   { rows: 12, cols: 12, mines: 15,  limit: 180 },
+    hard:   { rows: 20, cols: 20, mines: 120, limit: 60  },
+    insane: { rows: 24, cols: 24, mines: 220, limit: 120 }
 };
 
 /* ==============================
@@ -141,6 +144,8 @@ function applyLanguage() {
         const map = [t.giveUp0, t.giveUp1, t.giveUp2, t.giveUp3];
         giveUpBtn.textContent = map[Math.min(giveUpStep, 3)];
     }
+
+    updateAdaptiveHint(lastWasAdapted);
 }
 
 function toggleLanguage() {
@@ -170,6 +175,12 @@ function toggleMusic() {
     }
 }
 
+/* restart current level */
+function restartLevel() {
+    safePlay(document.getElementById("clickSound"));
+    startGame(currentLevel);
+}
+
 /* ==============================
    🚩 FLAGS UI
 ================================ */
@@ -187,6 +198,22 @@ function updateFlagUI() {
 
     if (flagsEl) flagsEl.textContent = flagCount;
     if (minesLeftEl) minesLeftEl.textContent = Math.max(0, minesCount - flagCount);
+}
+
+/* Adaptive hint badge */
+function updateAdaptiveHint(isAdapted) {
+    const hint = document.getElementById("adaptiveHint");
+    if (!hint) return;
+
+    lastWasAdapted = isAdapted;
+
+    if (isAdapted) {
+        hint.textContent = i18n[lang].adapted;
+        hint.classList.add("show");
+    } else {
+        hint.textContent = "";
+        hint.classList.remove("show");
+    }
 }
 
 /* ==============================
@@ -217,7 +244,7 @@ function giveUpClick() {
 }
 
 /* ==============================
-   📐 RESPONSIVE DIFFICULTY (auto fit for narrow screens)
+   📐 RESPONSIVE DIFFICULTY
 ================================ */
 function getCellSizePx() {
     const v = getComputedStyle(document.documentElement)
@@ -235,43 +262,42 @@ function computeResponsiveConfig(levelKey) {
     const base = levels[levelKey];
     const cfg = { ...base };
 
-    // available board width (CSS uses max-width: 96vw on mobile)
     const boardMaxW = window.innerWidth * (isMobilePortrait1080() ? 0.96 : 1.0);
-
     const cell = getCellSizePx();
-    const gap = isMobilePortrait1080() ? 3 : 4;
-    const padding = isMobilePortrait1080() ? 16 : 20; // board padding*2 approx (8*2 / 10*2)
+
+    // sync with CSS: desktop gap 2, mobile gap 1
+    const gap = isMobilePortrait1080() ? 1 : 2;
+    const padding = isMobilePortrait1080() ? 16 : 20;
 
     const requiredW = base.cols * cell + (base.cols - 1) * gap + padding;
 
-    // fits -> no change
-    if (requiredW <= boardMaxW) return cfg;
+    if (requiredW <= boardMaxW) {
+        cfg.__adapted = false;
+        return cfg;
+    }
 
-    // compute max columns possible
     const maxCols = Math.max(8, Math.floor((boardMaxW - padding + gap) / (cell + gap)));
 
-    // scale rows/cols proportionally to keep square-ish
     const ratio = maxCols / base.cols;
     const newCols = Math.max(8, Math.min(base.cols, Math.floor(base.cols * ratio)));
     const newRows = Math.max(8, Math.min(base.rows, Math.floor(base.rows * ratio)));
 
-    // preserve mine density
     const baseCells = base.rows * base.cols;
     const newCells = newRows * newCols;
+
     let newMines = Math.round(base.mines * (newCells / baseCells));
 
-    // keep insane brutal even when scaled down
     if (levelKey === "insane") {
-        const minDensity = 0.32; // 32% mines
+        const minDensity = 0.32;
         newMines = Math.max(newMines, Math.floor(newCells * minDensity));
     }
 
-    // safety limits
     newMines = Math.min(newMines, newCells - 9);
 
     cfg.rows = newRows;
     cfg.cols = newCols;
     cfg.mines = newMines;
+    cfg.__adapted = true;
 
     return cfg;
 }
@@ -293,8 +319,8 @@ function updateGridColumnsOnly() {
 function startGame(level) {
     currentLevel = level;
 
-    // IMPORTANT: use responsive config (auto shrink board if needed)
     const cfg = computeResponsiveConfig(level);
+    updateAdaptiveHint(!!cfg.__adapted);
 
     rows = cfg.rows;
     cols = cfg.cols;
@@ -307,7 +333,6 @@ function startGame(level) {
     document.getElementById("score").textContent = score;
     updateTimeDisplay();
 
-    // Pink background only for easy
     if (level === "easy") document.body.classList.add("pink-mode");
     else document.body.classList.remove("pink-mode");
 
@@ -331,7 +356,7 @@ function startGame(level) {
 }
 
 /* ==============================
-   ⏱ TIMER UI (COUNTDOWN)
+   ⏱ TIMER UI
 ================================ */
 function updateTimeDisplay() {
     const m = Math.floor(remainingTime / 60);
@@ -372,7 +397,7 @@ function calculateNumbers() {
 }
 
 /* ==============================
-   🧩 RENDER (autocell size via CSS var)
+   🧩 RENDER
 ================================ */
 function drawBoard() {
     const boardDiv = document.getElementById("board");
@@ -390,7 +415,6 @@ function drawBoard() {
             cell.className = "cell";
             cell.id = `cell-${r}-${c}`;
 
-            // PC: right click flag
             cell.addEventListener("mousedown", (e) => {
                 if (e.button === 2) {
                     e.preventDefault();
@@ -401,7 +425,6 @@ function drawBoard() {
             cell.addEventListener("click", () => openCell(r, c));
             cell.addEventListener("contextmenu", (e) => e.preventDefault());
 
-            // Mobile: long press = flag, tap = open
             cell.addEventListener("touchstart", (e) => {
                 e.preventDefault();
                 pressTimer = setTimeout(() => {
@@ -422,7 +445,6 @@ function drawBoard() {
         }
     }
 
-    // keep grid consistent if CSS cell size changed
     updateGridColumnsOnly();
 }
 
@@ -539,9 +561,9 @@ function loadRecord() {
     }
     applyMusicVolumeFromSlider();
 
-    // Recalculate grid columns when screen rotates/resizes (no restart)
     window.addEventListener("resize", () => {
         updateGridColumnsOnly();
     });
 })();
+
 
