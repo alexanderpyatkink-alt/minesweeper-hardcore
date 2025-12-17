@@ -1,41 +1,42 @@
 * { box-sizing: border-box; }
 
 :root{
-    --cell-size: 32px;
+  --cell-size: 32px;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-    background: linear-gradient(135deg, #050821, #22083f);
-    color: #eaeaff;
-    transition: background 0.25s ease;
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #050821, #22083f);
+  color: #eaeaff;
+  transition: background 0.25s ease;
 }
 
+/* Pink mode for EASY */
 body.pink-mode {
-    background: linear-gradient(135deg, #ff4fb7, #7a1cff);
+  background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
 
 h1 {
-    margin-top: 18px;
-    margin-bottom: 10px;
-    font-size: 32px;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-size: 32px;
 }
 
 #controls { margin-bottom: 10px; }
 
 button {
-    padding: 12px 18px;
-    margin: 6px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #7a1cff;
-    color: #ffffff;
-    transition: transform 0.1s ease, background 0.2s ease;
+  padding: 12px 18px;
+  margin: 6px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #7a1cff;
+  color: #ffffff;
+  transition: transform 0.1s ease, background 0.2s ease;
 }
 
 button:hover { background: #9a4dff; }
@@ -45,116 +46,93 @@ button:active { transform: scale(0.95); }
 #giveUpBtn:hover { background: #ff5b8f; }
 
 /* EASY mode: buttons become pink-ish */
-body.pink-mode #controls button {
-    background: #ff2a6d;
-}
-body.pink-mode #controls button:hover {
-    background: #ff5b8f;
-}
-body.pink-mode #musicToggleBtn {
-    background: rgba(13,16,51,0.65);
-}
-body.pink-mode #musicToggleBtn:hover {
-    background: rgba(13,16,51,0.85);
-}
+body.pink-mode #controls button { background: #ff2a6d; }
+body.pink-mode #controls button:hover { background: #ff5b8f; }
+
+body.pink-mode #musicToggleBtn { background: rgba(13,16,51,0.65); }
+body.pink-mode #musicToggleBtn:hover { background: rgba(13,16,51,0.85); }
 
 /* row for music + restart */
 .miniControlsRow{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 #musicToggleBtn {
-    font-size: 16px;
-    padding: 10px 12px;
+  font-size: 16px;
+  padding: 10px 12px;
 }
 
 /* Icon button base */
 .iconBtn{
-    padding: 10px 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+  padding: 10px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-/* ✅ NEW: green restart button + SVG */
+/* Green restart button + SVG */
 #restartBtn{
-    background: #12c97a;
-    color: #071a12; /* affects SVG stroke */
-    font-weight: 900;
+  background: #12c97a;
+  color: #071a12; /* affects SVG stroke */
+  font-weight: 900;
 }
-#restartBtn:hover{
-    background: #27e08f;
-}
+#restartBtn:hover{ background: #27e08f; }
+
 .restartIcon{
-    width: 20px;
-    height: 20px;
-    display: block;
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 /* Info */
 #info {
-    font-size: 18px;
-    margin: 10px 0;
+  font-size: 18px;
+  margin: 10px 0;
 }
 #info span {
-    display: inline-block;
-    min-width: 44px;
+  display: inline-block;
+  min-width: 44px;
 }
 
-/* hint badge */
-.hint{
-    min-height: 18px;
-    margin: 2px auto 6px;
-    font-size: 12px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(13, 16, 51, 0.55);
-    border: 1px solid rgba(234, 234, 255, 0.15);
-    backdrop-filter: blur(6px);
-}
-.hint.show{ opacity: 0.95; }
-
-/* Board */
+/* Board
+   ✅ убрали "чёрные линии": фон поля совпадает с закрытыми клетками */
 #board {
-    display: inline-grid;
-    gap: 2px;                 /* ПК — минимально */
-    background: #0d1033;
-    padding: 10px;
-    border-radius: 14px;
-    margin: 12px auto;
+  display: inline-grid;
+  gap: 4px;                 /* как раньше на ПК */
+  background: #2a2f6d;      /* same as .cell background */
+  padding: 10px;
+  border-radius: 14px;
+  margin: 12px auto;
 }
 
 body.pink-mode #board {
-    background: rgba(13, 16, 51, 0.45);
+  background: rgba(42, 47, 109, 0.75);
 }
 
 /* Cells */
 .cell {
-    width: var(--cell-size);
-    height: var(--cell-size);
-    line-height: var(--cell-size);
+  width: var(--cell-size);
+  height: var(--cell-size);
+  line-height: var(--cell-size);
 
-    background: #2a2f6d;
-    border-radius: 6px;
+  background: #2a2f6d;
+  border-radius: 6px;
 
-    font-weight: bold;
-    font-size: 16px;
+  font-weight: bold;
+  font-size: 16px;
 
-    cursor: pointer;
-    user-select: none;
+  cursor: pointer;
+  user-select: none;
 
-    transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 body.pink-mode .cell {
-    background: rgba(42, 47, 109, 0.75);
+  background: rgba(42, 47, 109, 0.75);
 }
 
 .cell.open { background: #3e44b8; cursor: default; }
@@ -167,120 +145,115 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 .cell.explode { animation: explode 0.6s ease-out forwards; }
 
 @keyframes explode {
-    0%   { transform: scale(1);   background: #ffffff; }
-    50%  { transform: scale(1.6); background: #ff004c; }
-    100% { transform: scale(1);   background: #8a0030; }
+  0%   { transform: scale(1);   background: #ffffff; }
+  50%  { transform: scale(1.6); background: #ff004c; }
+  100% { transform: scale(1);   background: #8a0030; }
 }
 
 /* Board shake */
 .shake { animation: shake 0.3s; }
 @keyframes shake {
-    0%   { transform: translate(0, 0); }
-    25%  { transform: translate(4px, -4px); }
-    50%  { transform: translate(-4px, 4px); }
-    75%  { transform: translate(4px, 4px); }
-    100% { transform: translate(0, 0); }
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(4px, -4px); }
+  50%  { transform: translate(-4px, 4px); }
+  75%  { transform: translate(4px, 4px); }
+  100% { transform: translate(0, 0); }
 }
 
 /* Top-right language + volume */
 #topRight {
-    position: fixed;
-    top: 12px;
-    right: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 999;
+  position: fixed;
+  top: 12px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 999;
 }
 
 .mini-btn {
-    padding: 8px 10px;
-    margin: 0;
-    font-size: 14px;
-    border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0;
+  font-size: 14px;
+  border-radius: 10px;
 }
 
 #musicBox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(13, 16, 51, 0.6);
-    border: 1px solid rgba(234, 234, 255, 0.15);
-    padding: 6px 8px;
-    border-radius: 12px;
-    backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 16, 51, 0.6);
+  border: 1px solid rgba(234, 234, 255, 0.15);
+  padding: 6px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
 }
 
-.musicLabel {
-    font-size: 14px;
-    opacity: 0.85;
-}
-
+.musicLabel { font-size: 14px; opacity: 0.85; }
 #musicVolume { width: 120px; }
 
-/* 📱 MOBILE (1080x2340 portrait) */
+/* 📱 MOBILE */
 @media screen and (max-width: 1080px) and (orientation: portrait) {
-    :root{
-        --cell-size: clamp(20px, 2.35vw, 28px);
-    }
+  :root{
+    --cell-size: clamp(20px, 2.35vw, 28px);
+  }
 
-    #topRight {
-        top: 10px;
-        right: 12px;
-        gap: 8px;
-        transform: scale(0.95);
-    }
+  #topRight {
+    top: 10px;
+    right: 12px;
+    gap: 8px;
+    transform: scale(0.95);
+  }
 
-    #musicBox { padding: 4px 6px; }
-    #musicVolume { width: 80px; }
+  #musicBox { padding: 4px 6px; }
+  #musicVolume { width: 80px; }
 
-    h1 {
-        font-size: 24px;
-        margin-top: 54px;
-        margin-bottom: 8px;
-    }
+  h1 {
+    font-size: 24px;
+    margin-top: 54px;
+    margin-bottom: 8px;
+  }
 
-    #controls {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 8px;
-    }
+  #controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
 
-    #controls button {
-        width: 92%;
-        max-width: 360px;
-        font-size: 15px;
-        padding: 10px 14px;
-    }
+  #controls button {
+    width: 92%;
+    max-width: 360px;
+    font-size: 15px;
+    padding: 10px 14px;
+  }
 
-    /* mini buttons compact */
-    #musicToggleBtn, #restartBtn{
-        width: auto;
-        max-width: none;
-        padding: 9px 12px;
-        margin: 0;
-    }
-    .restartIcon{ width: 20px; height: 20px; }
+  #musicToggleBtn, #restartBtn{
+    width: auto;
+    max-width: none;
+    padding: 9px 12px;
+    margin: 0;
+  }
 
-    #info {
-        font-size: 14px;
-        line-height: 1.35;
-        margin: 6px 0;
-    }
-    #info span { min-width: 34px; }
+  #info {
+    font-size: 14px;
+    line-height: 1.35;
+    margin: 6px 0;
+  }
+  #info span { min-width: 34px; }
 
-    #board {
-        max-width: 96vw;
-        gap: 1px;        /* минимальный зазор на телефоне */
-        padding: 8px;
-    }
+  #board {
+    max-width: 96vw;
+    gap: 3px;        /* ✅ как было раньше на телефоне */
+    padding: 8px;
+  }
 
-    .cell {
-        font-size: 14px;
-        border-radius: 5px;
-    }
+  .cell {
+    font-size: 14px;
+    border-radius: 5px;
+  }
 }
+
 
 
