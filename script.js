@@ -234,6 +234,10 @@ function startGame(level) {
   minesCount = cfg.mines;
   remainingTime = cfg.limit;
 
+  // ✅ set columns for CSS grid
+  const boardDiv = document.getElementById("board");
+  if (boardDiv) boardDiv.style.setProperty("--cols", cols);
+
   gameOver = false;
   score = 0;
 
@@ -310,11 +314,8 @@ function drawBoard() {
   const boardDiv = document.getElementById("board");
   boardDiv.innerHTML = "";
 
-  const cellSize = getComputedStyle(document.documentElement)
-    .getPropertyValue("--cell-size")
-    .trim() || "32px";
-
-  boardDiv.style.gridTemplateColumns = `repeat(${cols}, ${cellSize})`;
+  // ✅ enforce CSS columns again (for safety)
+  boardDiv.style.setProperty("--cols", cols);
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
