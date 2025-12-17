@@ -14,7 +14,7 @@ body {
   transition: background 0.25s ease;
 }
 
-/* Pink mode for EASY */
+/* ✅ EASY: только фон розовый, кнопки остаются “как на сложном” */
 body.pink-mode {
   background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
@@ -34,7 +34,7 @@ button {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background: #7a1cff;
+  background: #7a1cff; /* “как в сложном” */
   color: #ffffff;
   transition: transform 0.1s ease, background 0.2s ease;
 }
@@ -44,12 +44,6 @@ button:active { transform: scale(0.95); }
 
 #giveUpBtn { background: #ff2a6d; }
 #giveUpBtn:hover { background: #ff5b8f; }
-
-body.pink-mode #controls button { background: #ff2a6d; }
-body.pink-mode #controls button:hover { background: #ff5b8f; }
-
-body.pink-mode #musicToggleBtn { background: rgba(13,16,51,0.65); }
-body.pink-mode #musicToggleBtn:hover { background: rgba(13,16,51,0.85); }
 
 /* row for music + restart */
 .miniControlsRow{
@@ -69,6 +63,7 @@ body.pink-mode #musicToggleBtn:hover { background: rgba(13,16,51,0.85); }
   line-height: 1;
 }
 
+/* ✅ restart всегда зелёный (на всех уровнях) */
 #restartBtn{
   background: #12c97a;
   color: #071a12;
@@ -91,12 +86,13 @@ body.pink-mode #musicToggleBtn:hover { background: rgba(13,16,51,0.85); }
   min-width: 44px;
 }
 
-/* ✅ ВОТ ГЛАВНОЕ:
-   board темнее, клетки светлее -> сетка снова видна */
+/* ✅ FIX: сетка через CSS-переменную --cols */
 #board {
+  --cols: 12; /* JS выставит нужное */
   display: inline-grid;
-  gap: 4px;                 /* ПК как раньше */
-  background: #0d1033;      /* темная панель как раньше */
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
+  gap: 4px;                 /* как “3 версии назад” */
+  background: #0d1033;
   padding: 10px;
   border-radius: 14px;
   margin: 12px auto;
@@ -113,7 +109,7 @@ body.pink-mode #board {
   height: var(--cell-size);
   line-height: var(--cell-size);
 
-  background: #2a2f6d;      /* светлее панели */
+  background: #2a2f6d;
   border-radius: 6px;
 
   font-weight: bold;
@@ -125,9 +121,7 @@ body.pink-mode #board {
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
-body.pink-mode .cell {
-  background: rgba(42, 47, 109, 0.75);
-}
+body.pink-mode .cell { background: rgba(42, 47, 109, 0.75); }
 
 .cell.open { background: #3e44b8; cursor: default; }
 .cell.flag { background: #6a3cff; }
@@ -135,7 +129,6 @@ body.pink-mode .cell {
 body.pink-mode .cell.open { background: rgba(62, 68, 184, 0.78); }
 body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 
-/* Explosion animation */
 .cell.explode { animation: explode 0.6s ease-out forwards; }
 @keyframes explode {
   0%   { transform: scale(1);   background: #ffffff; }
@@ -143,7 +136,6 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
   100% { transform: scale(1);   background: #8a0030; }
 }
 
-/* Board shake */
 .shake { animation: shake 0.3s; }
 @keyframes shake {
   0%   { transform: translate(0, 0); }
@@ -238,7 +230,7 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 
   #board {
     max-width: 96vw;
-    gap: 3px;        /* ✅ телефон как раньше */
+    gap: 3px;  /* как раньше на телефоне */
     padding: 8px;
   }
 
