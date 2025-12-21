@@ -1,6 +1,3 @@
-/* ==============================
-   🌍 LANGUAGE PACKS
-================================ */
 const i18n = {
   en: {
     title: "💣 Minesweeper: Hardcore",
@@ -75,9 +72,6 @@ const losePhrases = {
 
 let lang = localStorage.getItem("lang") || "en";
 
-/* ==============================
-   ⚙️ GAME STATE
-================================ */
 let rows, cols, minesCount;
 let board = [], revealed = [], flags = [];
 let gameOver = false;
@@ -88,18 +82,13 @@ let currentLevel = "hard";
 
 let giveUpStep = 0;
 let pressTimer = null;
-let flagCount = 0;
 
-/* FIXED LEVELS (no adaptation) */
 const levels = {
   easy:   { rows: 12, cols: 12, mines: 15,  limit: 180 }, // 3:00
   hard:   { rows: 20, cols: 20, mines: 120, limit: 60  }, // 1:00
   insane: { rows: 24, cols: 24, mines: 220, limit: 120 }  // 2:00
 };
 
-/* ==============================
-   🔊 AUDIO HELPERS
-================================ */
 function safePlay(audioEl) {
   if (!audioEl) return;
   try {
@@ -118,40 +107,6 @@ function applyMusicVolumeFromSlider() {
   localStorage.setItem("musicVolume", String(slider.value));
 }
 
-/* ==============================
-   🌍 LANGUAGE UI
-================================ */
-function applyLanguage() {
-  document.documentElement.lang = lang;
-  const t = i18n[lang];
-
-  const title = document.getElementById("title");
-  const btnHard = document.getElementById("btnHard");
-  const btnInsane = document.getElementById("btnInsane");
-  const langBtn = document.getElementById("langBtn");
-  const giveUpBtn = document.getElementById("giveUpBtn");
-
-  if (title) title.textContent = t.title;
-  if (btnHard) btnHard.textContent = t.hard;
-  if (btnInsane) btnInsane.textContent = t.insane;
-
-  if (langBtn) langBtn.textContent = (lang === "en" ? "RU" : "EN");
-
-  if (giveUpBtn) {
-    const map = [t.giveUp0, t.giveUp1, t.giveUp2, t.giveUp3];
-    giveUpBtn.textContent = map[Math.min(giveUpStep, 3)];
-  }
-}
-
-function toggleLanguage() {
-  lang = (lang === "en" ? "ru" : "en");
-  localStorage.setItem("lang", lang);
-  applyLanguage();
-}
-
-/* ==============================
-   🎵 MUSIC CONTROLS
-================================ */
 function playClickStart() {
   safePlay(document.getElementById("clickSound"));
   const music = document.getElementById("bgMusic");
@@ -170,34 +125,46 @@ function toggleMusic() {
   }
 }
 
-/* restart current level */
-function restartLevel() {
-  safePlay(document.getElementById("clickSound"));
-  startGame(currentLevel);
+/* ✅ Вместо alert: показываем сообщение на экране */
+function showMessage(text, type) {
+  const el = document.getElementById("message");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove("hidden", "win", "lose");
+  if (type === "win") el.classList.add("win");
+  if (type === "lose") el.classList.add("lose");
 }
 
-/* ==============================
-   🚩 FLAGS UI
-================================ */
-function updateFlagUI() {
-  let count = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (flags[r][c]) count++;
-    }
-  }
-  flagCount = count;
-
-  const flagsEl = document.getElementById("flags");
-  const minesLeftEl = document.getElementById("minesLeft");
-
-  if (flagsEl) flagsEl.textContent = flagCount;
-  if (minesLeftEl) minesLeftEl.textContent = Math.max(0, minesCount - flagCount);
+function hideMessage() {
+  const el = document.getElementById("message");
+  if (!el) return;
+  el.textContent = "";
+  el.classList.add("hidden");
+  el.classList.remove("win", "lose");
 }
 
-/* ==============================
-   😈 GIVE UP CHAIN
-================================ */
+function applyLanguage() {
+  document.documentElement.lang = lang;
+  const t = i18n[lang];
+
+  document.getElementById("title").textContent = t.title;
+  document.getElementById("btnHard").textContent = t.hard;
+  document.getElementById("btnInsane").textContent = t.insane;
+
+  const langBtn = document.getElementById("langBtn");
+  if (langBtn) langBtn.textContent = (lang === "en" ? "RU" : "EN");
+
+  const giveUpBtn = document.getElementById("giveUpBtn");
+  const map = [t.giveUp0, t.giveUp1, t.giveUp2, t.giveUp3];
+  if (giveUpBtn) giveUpBtn.textContent = map[Math.min(giveUpStep, 3)];
+}
+
+function toggleLanguage() {
+  lang = (lang === "en" ? "ru" : "en");
+  localStorage.setItem("lang", lang);
+  applyLanguage();
+}
+
 function resetGiveUpButton() {
   giveUpStep = 0;
   const btn = document.getElementById("giveUpBtn");
@@ -211,20 +178,23 @@ function giveUpClick() {
   safePlay(document.getElementById("clickSound"));
   giveUpStep++;
 
-  if (giveUpStep === 1) { btn.textContent = i18n[lang].giveUp1; return; }
-  if (giveUpStep === 2) { btn.textContent = i18n[lang].giveUp2; return; }
+  const t = i18n[lang];
+  if (giveUpStep === 1) { btn.textContent = t.giveUp1; return; }
+  if (giveUpStep === 2) { btn.textContent = t.giveUp2; return; }
 
   if (giveUpStep >= 3) {
-    btn.textContent = i18n[lang].giveUp3;
+    btn.textContent = t.giveUp3;
     playClickStart();
     startGame("easy");
     setTimeout(resetGiveUpButton, 1200);
   }
 }
 
-/* ==============================
-   ▶️ START GAME (fixed sizes)
-================================ */
+function restartLevel() {
+  safePlay(document.getElementById("clickSound"));
+  startGame(currentLevel);
+}
+
 function startGame(level) {
   currentLevel = level;
   const cfg = levels[level];
@@ -234,14 +204,15 @@ function startGame(level) {
   minesCount = cfg.mines;
   remainingTime = cfg.limit;
 
-  // ✅ set columns for CSS grid
   const boardDiv = document.getElementById("board");
   if (boardDiv) boardDiv.style.setProperty("--cols", cols);
 
   gameOver = false;
   score = 0;
 
-  document.getElementById("score").textContent = score;
+  hideMessage(); // ✅ скрываем прошлый результат
+
+  document.getElementById("score").textContent = String(score);
   updateTimeDisplay();
 
   if (level === "easy") document.body.classList.add("pink-mode");
@@ -266,19 +237,12 @@ function startGame(level) {
   loadRecord();
 }
 
-/* ==============================
-   ⏱ TIMER UI
-================================ */
 function updateTimeDisplay() {
   const m = Math.floor(remainingTime / 60);
   const s = remainingTime % 60;
-  document.getElementById("time").textContent =
-    `${m}:${s.toString().padStart(2, "0")}`;
+  document.getElementById("time").textContent = `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-/* ==============================
-   💣 BOARD LOGIC
-================================ */
 function placeMines() {
   let placed = 0;
   while (placed < minesCount) {
@@ -307,14 +271,9 @@ function calculateNumbers() {
   }
 }
 
-/* ==============================
-   🧩 RENDER
-================================ */
 function drawBoard() {
   const boardDiv = document.getElementById("board");
   boardDiv.innerHTML = "";
-
-  // ✅ enforce CSS columns again (for safety)
   boardDiv.style.setProperty("--cols", cols);
 
   for (let r = 0; r < rows; r++) {
@@ -323,7 +282,6 @@ function drawBoard() {
       cell.className = "cell";
       cell.id = `cell-${r}-${c}`;
 
-      // PC: right click flag
       cell.addEventListener("mousedown", (e) => {
         if (e.button === 2) {
           e.preventDefault();
@@ -334,7 +292,6 @@ function drawBoard() {
       cell.addEventListener("click", () => openCell(r, c));
       cell.addEventListener("contextmenu", (e) => e.preventDefault());
 
-      // Mobile: long press = flag, tap = open
       cell.addEventListener("touchstart", (e) => {
         e.preventDefault();
         pressTimer = setTimeout(() => {
@@ -356,9 +313,17 @@ function drawBoard() {
   }
 }
 
-/* ==============================
-   🎮 ACTIONS
-================================ */
+function updateFlagUI() {
+  let count = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (flags[r][c]) count++;
+    }
+  }
+  document.getElementById("flags").textContent = String(count);
+  document.getElementById("minesLeft").textContent = String(Math.max(0, minesCount - count));
+}
+
 function openCell(r, c) {
   if (gameOver || revealed[r][c] || flags[r][c]) return;
 
@@ -384,10 +349,10 @@ function openCell(r, c) {
   }
 
   score += 5;
-  document.getElementById("score").textContent = score;
+  document.getElementById("score").textContent = String(score);
 
   if (board[r][c] > 0) {
-    cell.textContent = board[r][c];
+    cell.textContent = String(board[r][c]);
   } else {
     for (let dr=-1; dr<=1; dr++) {
       for (let dc=-1; dc<=1; dc++) {
@@ -406,14 +371,11 @@ function toggleFlag(r, c, cell) {
 
   flags[r][c] = !flags[r][c];
   cell.textContent = flags[r][c] ? "🚩" : "";
-  cell.classList.toggle("flag");
+  cell.classList.toggle("flag", flags[r][c]);
 
   updateFlagUI();
 }
 
-/* ==============================
-   🏁 WIN / LOSE
-================================ */
 function checkWin() {
   let opened = 0;
   for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) if (revealed[r][c]) opened++;
@@ -430,18 +392,16 @@ function endGame(win, timeUp) {
     safePlay(document.getElementById("winSound"));
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     saveRecord();
-    setTimeout(() => alert(t.win), 200);
+    showMessage(t.win, "win"); // ✅ текст победы всегда на экране
   } else {
     const msg = timeUp
       ? t.timeUp
       : losePhrases[lang][Math.floor(Math.random() * losePhrases[lang].length)];
-    setTimeout(() => alert(msg), 200);
+
+    showMessage(msg, "lose"); // ✅ фикс: текст поражения всегда показывается
   }
 }
 
-/* ==============================
-   🏆 RECORDS
-================================ */
 function saveRecord() {
   const key = "record_" + currentLevel;
   const best = Number(localStorage.getItem(key) || "0");
@@ -454,9 +414,6 @@ function loadRecord() {
   document.getElementById("record").textContent = localStorage.getItem(key) || "0";
 }
 
-/* ==============================
-   ✅ INIT
-================================ */
 (function init() {
   applyLanguage();
 
@@ -469,6 +426,7 @@ function loadRecord() {
   }
   applyMusicVolumeFromSlider();
 })();
+
 
 
 
