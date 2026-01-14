@@ -1,3 +1,4 @@
+// script.js (без изменений логики — только гарантируем адаптив и отсутствие “мобильных глюков”)
 const i18n = {
   en: {
     title: "💣 Minesweeper: Hardcore",
@@ -125,7 +126,6 @@ function toggleMusic() {
   }
 }
 
-/* ✅ Вместо alert: показываем сообщение на экране */
 function showMessage(text, type) {
   const el = document.getElementById("message");
   if (!el) return;
@@ -210,7 +210,7 @@ function startGame(level) {
   gameOver = false;
   score = 0;
 
-  hideMessage(); // ✅ скрываем прошлый результат
+  hideMessage();
 
   document.getElementById("score").textContent = String(score);
   updateTimeDisplay();
@@ -282,6 +282,7 @@ function drawBoard() {
       cell.className = "cell";
       cell.id = `cell-${r}-${c}`;
 
+      // ПК: ПКМ = флаг
       cell.addEventListener("mousedown", (e) => {
         if (e.button === 2) {
           e.preventDefault();
@@ -292,6 +293,7 @@ function drawBoard() {
       cell.addEventListener("click", () => openCell(r, c));
       cell.addEventListener("contextmenu", (e) => e.preventDefault());
 
+      // Телефон: long-press = флаг
       cell.addEventListener("touchstart", (e) => {
         e.preventDefault();
         pressTimer = setTimeout(() => {
@@ -392,13 +394,12 @@ function endGame(win, timeUp) {
     safePlay(document.getElementById("winSound"));
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     saveRecord();
-    showMessage(t.win, "win"); // ✅ текст победы всегда на экране
+    showMessage(t.win, "win");
   } else {
     const msg = timeUp
       ? t.timeUp
       : losePhrases[lang][Math.floor(Math.random() * losePhrases[lang].length)];
-
-    showMessage(msg, "lose"); // ✅ фикс: текст поражения всегда показывается
+    showMessage(msg, "lose");
   }
 }
 
@@ -426,6 +427,7 @@ function loadRecord() {
   }
   applyMusicVolumeFromSlider();
 })();
+
 
 
 
