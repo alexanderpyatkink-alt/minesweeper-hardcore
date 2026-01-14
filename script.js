@@ -1,4 +1,3 @@
-// script.js (без изменений логики — только гарантируем адаптив и отсутствие “мобильных глюков”)
 const i18n = {
   en: {
     title: "💣 Minesweeper: Hardcore",
@@ -45,7 +44,28 @@ const losePhrases = {
     "💤 Again? Really?",
     "🐒 A monkey might do better",
     "🧨 BOOM! Classic.",
-    "🎯 Nice try. Straight into disaster."
+    "🎯 Nice try. Straight into disaster.",
+
+    "💀 That was painful to watch",
+    "🤡 Congratulations, you played yourself",
+    "🪦 Rest in pieces, brain cells",
+    "😬 Even the mines are disappointed",
+    "📉 Skill level: underground",
+    "🧯 Call the fire department for that fail",
+    "🥴 That wasn't even close",
+    "🧠 Brain.exe has stopped working",
+    "🎯 Missed everything except the mine",
+    "😴 Try again when you're awake",
+    "🗿 Legendary fail unlocked",
+    "📚 Please read the tutorial (again)",
+    "🪤 You walked straight into it",
+    "😵 That was impressively bad",
+    "🥇 First place in losing",
+    "🚫 No thoughts, only mines",
+    "🧊 Cold. Slow. Wrong.",
+    "🧨 Boom. Obviously.",
+    "🧹 Clean up that disaster",
+    "🧠 Refund your brain"
   ],
   ru: [
     "💀 Ты правда думал, что справишься?",
@@ -67,7 +87,28 @@ const losePhrases = {
     "💤 Опять? Серьёзно?",
     "🐒 Даже обезьяна сыграла бы лучше",
     "🧨 БУМ! Классика жанра",
-    "🎯 Попытка засчитана. Но мимо."
+    "🎯 Попытка засчитана. Но мимо.",
+
+    "💀 Это было больно смотреть",
+    "🤡 Поздравляю, ты сам себя переиграл",
+    "🪦 Покойся с миром, мозг",
+    "😬 Даже мины разочарованы",
+    "📉 Уровень скилла: под землёй",
+    "🧯 Вызови пожарных для этого фейла",
+    "🥴 Это даже не было близко",
+    "🧠 Brain.exe перестал работать",
+    "🎯 Попал во всё, кроме правильного",
+    "😴 Попробуй, когда проснёшься",
+    "🗿 Легендарный провал открыт",
+    "📚 Почитай обучение (ещё раз)",
+    "🪤 Ты сам туда пошёл",
+    "😵 Это было впечатляюще плохо",
+    "🥇 Первое место по сливу",
+    "🚫 Ни мыслей, ни шансов",
+    "🧊 Холодно. Медленно. Мимо.",
+    "🧨 Ну конечно, взрыв",
+    "🧹 Убери за собой этот позор",
+    "🧠 Верни мозг по гарантии"
   ]
 };
 
@@ -90,6 +131,7 @@ const levels = {
   insane: { rows: 24, cols: 24, mines: 220, limit: 120 }  // 2:00
 };
 
+/* audio helpers */
 function safePlay(audioEl) {
   if (!audioEl) return;
   try {
@@ -126,6 +168,7 @@ function toggleMusic() {
   }
 }
 
+/* ✅ message instead of alert */
 function showMessage(text, type) {
   const el = document.getElementById("message");
   if (!el) return;
@@ -143,6 +186,7 @@ function hideMessage() {
   el.classList.remove("win", "lose");
 }
 
+/* language */
 function applyLanguage() {
   document.documentElement.lang = lang;
   const t = i18n[lang];
@@ -165,6 +209,7 @@ function toggleLanguage() {
   applyLanguage();
 }
 
+/* give up */
 function resetGiveUpButton() {
   giveUpStep = 0;
   const btn = document.getElementById("giveUpBtn");
@@ -190,11 +235,13 @@ function giveUpClick() {
   }
 }
 
+/* restart */
 function restartLevel() {
   safePlay(document.getElementById("clickSound"));
   startGame(currentLevel);
 }
 
+/* start */
 function startGame(level) {
   currentLevel = level;
   const cfg = levels[level];
@@ -204,6 +251,7 @@ function startGame(level) {
   minesCount = cfg.mines;
   remainingTime = cfg.limit;
 
+  // grid cols via CSS variable
   const boardDiv = document.getElementById("board");
   if (boardDiv) boardDiv.style.setProperty("--cols", cols);
 
@@ -282,7 +330,7 @@ function drawBoard() {
       cell.className = "cell";
       cell.id = `cell-${r}-${c}`;
 
-      // ПК: ПКМ = флаг
+      // PC: right click flag
       cell.addEventListener("mousedown", (e) => {
         if (e.button === 2) {
           e.preventDefault();
@@ -293,7 +341,7 @@ function drawBoard() {
       cell.addEventListener("click", () => openCell(r, c));
       cell.addEventListener("contextmenu", (e) => e.preventDefault());
 
-      // Телефон: long-press = флаг
+      // mobile: long-press flag
       cell.addEventListener("touchstart", (e) => {
         e.preventDefault();
         pressTimer = setTimeout(() => {
@@ -403,6 +451,7 @@ function endGame(win, timeUp) {
   }
 }
 
+/* records */
 function saveRecord() {
   const key = "record_" + currentLevel;
   const best = Number(localStorage.getItem(key) || "0");
@@ -415,6 +464,7 @@ function loadRecord() {
   document.getElementById("record").textContent = localStorage.getItem(key) || "0";
 }
 
+/* init */
 (function init() {
   applyLanguage();
 
@@ -427,6 +477,8 @@ function loadRecord() {
   }
   applyMusicVolumeFromSlider();
 })();
+
+
 
 
 
