@@ -1,20 +1,23 @@
+/* style.css */
 * { box-sizing: border-box; }
 
 :root{
-  --cell-size: 32px;
+  /* Адаптивный размер клетки для любых дисплеев (портрет/альбом/планшет/ПК) */
+  --cell-size: clamp(18px, min(3.2vw, 3.2vh), 36px);
+  --gap: clamp(2px, 0.45vmin, 4px);
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100svh;
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   background: linear-gradient(135deg, #050821, #22083f);
   color: #eaeaff;
   transition: background 0.25s ease;
+  padding-bottom: 16px;
 }
 
-/* EASY: только фон */
 body.pink-mode {
   background: linear-gradient(135deg, #ff4fb7, #7a1cff);
 }
@@ -22,14 +25,22 @@ body.pink-mode {
 h1 {
   margin-top: 18px;
   margin-bottom: 10px;
-  font-size: 32px;
+  font-size: clamp(22px, 3.2vw, 34px);
 }
 
-#controls { margin-bottom: 10px; }
+/* Контролы адаптивно: не наезжают, переносятся */
+#controls {
+  width: min(980px, 96vw);
+  margin: 0 auto 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
 
 button {
   padding: 12px 18px;
-  margin: 6px;
   font-size: 18px;
   border: none;
   border-radius: 10px;
@@ -49,7 +60,6 @@ button:active { transform: scale(0.95); }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 2px;
 }
 
 #musicToggleBtn { font-size: 16px; padding: 10px 12px; }
@@ -62,7 +72,7 @@ button:active { transform: scale(0.95); }
   line-height: 1;
 }
 
-/* restart always green */
+/* ✅ restart всегда зелёный */
 #restartBtn{
   background: #12c97a;
   color: #071a12;
@@ -77,12 +87,14 @@ button:active { transform: scale(0.95); }
 }
 
 #info {
-  font-size: 18px;
-  margin: 10px 0;
+  width: min(980px, 96vw);
+  margin: 8px auto 6px;
+  font-size: clamp(13px, 1.8vw, 18px);
+  line-height: 1.35;
 }
 #info span {
   display: inline-block;
-  min-width: 44px;
+  min-width: 40px;
 }
 
 /* ✅ Сообщение */
@@ -94,7 +106,7 @@ button:active { transform: scale(0.95); }
   background: rgba(13, 16, 51, 0.6);
   border: 1px solid rgba(234, 234, 255, 0.15);
   backdrop-filter: blur(6px);
-  font-size: 16px;
+  font-size: clamp(13px, 1.7vw, 16px);
   line-height: 1.3;
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
@@ -102,14 +114,23 @@ button:active { transform: scale(0.95); }
 .message.win{ border-color: rgba(18, 201, 122, 0.5); }
 .message.lose{ border-color: rgba(255, 42, 109, 0.55); }
 
-/* ✅ FIXED GRID via CSS variable */
+/* ✅ Обёртка: поле не ломает экран, появится скролл если надо */
+#boardWrap{
+  width: min(980px, 96vw);
+  margin: 0 auto;
+  overflow: auto;
+  border-radius: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ Поле: адаптив, без “сломов” на разных дисплеях */
 #board {
   --cols: 12;
   display: inline-grid;
   grid-template-columns: repeat(var(--cols), var(--cell-size));
-  gap: 4px;
+  gap: var(--gap);
   background: #0d1033;
-  padding: 10px;
+  padding: clamp(8px, 1.2vmin, 12px);
   border-radius: 14px;
   margin: 12px auto;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -119,21 +140,19 @@ body.pink-mode #board {
   background: rgba(13, 16, 51, 0.45);
 }
 
-/* Cells */
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
   line-height: var(--cell-size);
 
   background: #2a2f6d;
-  border-radius: 6px;
+  border-radius: clamp(4px, 0.65vmin, 6px);
 
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: clamp(12px, 1.6vmin, 16px);
 
   cursor: pointer;
   user-select: none;
-
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
@@ -163,11 +182,12 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
   100% { transform: translate(0, 0); }
 }
 
-/* Top-right language + volume */
+/* ✅ Правый верхний блок: СДВИГ ВНИЗ НА 20см
+   Но с безопасным лимитом, чтобы не уехал за экран на телефонах */
 #topRight {
   position: fixed;
-  top: 12px;
-  right: 28px;
+  right: 18px;
+  top: min(20cm, 18vh); /* <= требование “20 см”, но не ломаем мобильные */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -195,72 +215,17 @@ body.pink-mode .cell.flag { background: rgba(255, 42, 109, 0.9); }
 .musicLabel { font-size: 14px; opacity: 0.85; }
 #musicVolume { width: 120px; }
 
-/* 📱 MOBILE */
-@media screen and (max-width: 1080px) and (orientation: portrait) {
-  :root{
-    --cell-size: clamp(20px, 2.35vw, 28px);
-  }
+/* Улучшение для очень узких экранов */
+@media (max-width: 420px){
+  #musicVolume { width: 90px; }
+  #topRight { right: 10px; }
+}
 
-  #topRight {
-    top: 10px;
-    right: 12px;
-    gap: 8px;
-    transform: scale(0.95);
-  }
-
-  #musicBox { padding: 4px 6px; }
-  #musicVolume { width: 80px; }
-
-  h1 {
-    font-size: 24px;
-    margin-top: 54px;
-    margin-bottom: 8px;
-  }
-
-  #controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-
-  #controls button {
-    width: 92%;
-    max-width: 360px;
-    font-size: 15px;
-    padding: 10px 14px;
-  }
-
-  #musicToggleBtn, #restartBtn{
-    width: auto;
-    max-width: none;
-    padding: 9px 12px;
-    margin: 0;
-  }
-
-  #info {
-    font-size: 14px;
-    line-height: 1.35;
-    margin: 6px 0;
-  }
-  #info span { min-width: 34px; }
-
-  .message{
-    font-size: 14px;
-    margin: 6px auto 8px;
-  }
-
-  #board {
-    max-width: 96vw;
-    gap: 3px;
-    padding: 8px;
-  }
-
-  .cell {
-    font-size: 14px;
-    border-radius: 5px;
-  }
+/* Для альбомного режима на телефонах: делаем компактнее */
+@media (max-height: 520px) and (orientation: landscape){
+  h1 { margin-top: 10px; margin-bottom: 6px; }
+  #topRight { top: min(20cm, 12vh); }
+  #board { margin: 8px auto; }
 }
 
 
